@@ -1,8 +1,10 @@
 "use client";
+
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,39 +16,55 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ComboBox } from "../custom/ComboBox";
+import { ComboBox } from "@/components/custom/ComboBox";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
+
 const formSchema = z.object({
-  title: z
-    .string()
-    .min(1, { message: "Title is required of minimum 2 characters" }),
-  categoryId: z.string().min(1, { message: "Category is required " }),
-  subcategoryId: z.string().min(1, { message: "Subcategory is required " }),
+  title: z.string().min(2, {
+    message: "Title is required and minimum 2 characters",
+  }),
+  categoryId: z.string().min(1, {
+    message: "Category is required",
+  }),
+  subCategoryId: z.string().min(1, {
+    message: "Subcategory is required",
+  }),
 });
 
 interface CreateCourseFormProps {
   categories: {
-    label: string; //name of the category
-    value: string; //categoryId
+    label: string; // name of category
+    value: string; // categoryId
     subCategories: { label: string; value: string }[];
   }[];
 }
+
 const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
   const router = useRouter();
+
+  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       categoryId: "",
-      subcategoryId: "",
+      subCategoryId: "",
     },
   });
+
+  const { isValid, isSubmitting } = form.formState;
+
+  // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/courses", values);
-      router.push(`/instructor/course/${response.data.id}/basic`);
-    } catch (error) {
-      console.log("failed to create a new Course", error);
+      router.push(`/instructor/courses/${response.data.id}/basic`);
+      toast.success("New Course Created");
+    } catch (err) {
+      console.log("Failed to create new course", err);
+      toast.error("Something went wrong!");
     }
   };
 
@@ -56,9 +74,10 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
         Let give some basics for your course
       </h1>
       <p className="text-sm mt-3">
-        It is ok if you cannot think of good title or category now. You can
-        change them later
+        It is ok if you cannot think of a good title or correct category now.
+        You can change them later.
       </p>
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -76,11 +95,11 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
                     {...field}
                   />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="categoryId"
@@ -90,14 +109,14 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
                 <FormControl>
                   <ComboBox options={categories} {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="subcategoryId"
+            name="subCategoryId"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Subcategory</FormLabel>
@@ -112,12 +131,18 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
                     {...field}
                   />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+
+          <Button type="submit" disabled={!isValid || isSubmitting}>
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Create"
+            )}
+          </Button>
         </form>
       </Form>
     </div>
