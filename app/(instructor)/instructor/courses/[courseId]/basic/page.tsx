@@ -15,9 +15,29 @@ const CourseBasics = async ({ params }: { params: { courseId: string } }) => {
   if (!course) {
     return redirect("/instructor/courses");
   }
+  const categories = await db.category.findMany({
+    orderBy: {
+      name: "asc",
+    },
+    include: {
+      subCategories: true,
+    },
+  });
+  const levels = await db.level.findMany();
   return (
-    <div>
-      <EditCourseForm course={course} />
+    <div className="px-10 mb-4">
+      <EditCourseForm
+        course={course}
+        categories={categories.map((category) => ({
+          label: category.name,
+          value: category.id,
+          subCategories: category.subCategories.map((subCategory) => ({
+            label: subCategory.name,
+            value: subCategory.id,
+          })),
+        }))}
+        levels={levels.map(Level=>({label:Level.name,value:Level.id}))}
+      />
     </div>
   );
 };
