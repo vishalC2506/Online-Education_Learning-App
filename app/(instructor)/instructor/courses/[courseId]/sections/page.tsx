@@ -14,6 +14,7 @@ const CourseCirriculumPage = async ({
   }
   const course = await db.course.findUnique({
     where: { id: params.courseId, instructorId: userId },
+    include: { sections: { orderBy: { position: "asc" } } },
   });
   if (!course) {
     return redirect("/instructor/courses");

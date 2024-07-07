@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Course } from "@prisma/client";
+import { Course, Section } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,13 +20,18 @@ import toast from "react-hot-toast";
 import axios from "axios";
 //import SectionList from "@/components/sections/SectionList";
 import { Loader2 } from "lucide-react";
+import SectionList from "./SectionList";
 
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title is required and must be at least 2 characters long",
   }),
 });
-const CreateSectionForm = ({ course }: { course: Course }) => {
+const CreateSectionForm = ({
+  course,
+}: {
+  course: Course & { sections: Section[] };
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const routes = [
@@ -61,6 +66,15 @@ const CreateSectionForm = ({ course }: { course: Course }) => {
       console.log("Failed to create a new section", err);
     }
   };
+  const onReorder = async (updateData: { id: string; position: Number }[]) => {try {
+    await axios.put(`/api/courses/${course.id}/sections/reorder`, {
+      list: updateData,
+    });
+    toast.success("Sections reordered successfully");
+  } catch (err) {
+    console.log("Failed to reorder sections", err);
+    toast.error("Something went wrong!");
+  }};
   return (
     <div className="px-10 py-6">
       <div className="flex gap-5">
@@ -72,6 +86,11 @@ const CreateSectionForm = ({ course }: { course: Course }) => {
           </Link>
         ))}
       </div>
+      <SectionList
+        items={course.sections || []}
+        onReorder={onReorder}
+        onEdit={(id)=>router.push(`/instructor/courses/${course.id}/sections/${id}`)}
+      />
       <h1 className="text-xl font-bold mt-5">Add New Section</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 mt-5">
