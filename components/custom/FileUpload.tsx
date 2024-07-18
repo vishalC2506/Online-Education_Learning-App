@@ -1,4 +1,3 @@
-"use client";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { UploadDropzone } from "@/lib/UploadThing";
 import Image from "next/image";
@@ -8,11 +7,13 @@ interface FileUploadProps {
   value: string;
   onChange: (url?: string) => void;
   endpoint: keyof typeof ourFileRouter;
+  page: string;
 }
-const FileUpload = ({ value, onChange, endpoint }: FileUploadProps) => {
+
+const FileUpload = ({ value, onChange, endpoint, page }: FileUploadProps) => {
   return (
-    <div className="flex  gap-2">
-      {value !== "" && (
+    <div className="flex flex-col gap-2">
+      {page === "Edit Course" && value !== "" && (
         <Image
           src={value}
           alt="image"
@@ -20,6 +21,10 @@ const FileUpload = ({ value, onChange, endpoint }: FileUploadProps) => {
           height={500}
           className="w-[280px] h-[200px] object-cover rounded-xl"
         />
+      )}
+
+      {page === "Edit Section" && value !== "" && (
+        <p className="text-sm font-medium">{value}</p>
       )}
 
       <UploadDropzone
@@ -35,4 +40,5 @@ const FileUpload = ({ value, onChange, endpoint }: FileUploadProps) => {
     </div>
   );
 };
+
 export default FileUpload;

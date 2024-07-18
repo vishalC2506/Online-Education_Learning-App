@@ -21,7 +21,7 @@ const Topbar = () => {
         <input
           className="flex-grow bg-[#FFF8EB] rounded-l-full
                      border-none outline-none text-sm pl-4 py-3"
-          placeholder="searcch for courses"
+          placeholder="search for courses"
         />
         <button
           className="bg-[#FDAB04] rounded-r-full border-none 
