@@ -4,56 +4,58 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (
   req: NextRequest,
-  { params }: { params: { courseId: string } }
+  { params }: { params: { courseId: string; sectionId: string } }
 ) => {
   try {
     const { userId } = auth();
-    const { courseId } = params;
 
     if (!userId) {
-      return new Response("Unauthorized", { status: 401 });
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    const { courseId, sectionId } = params;
+
     const course = await db.course.findUnique({
-      where: { id: courseId, instructorId: userId },
-      include: {
-        sections: {
-          include: {
-            muxData: true,
-          },
-        },
+      where: {
+        id: courseId,
+        instructorId: userId,
       },
     });
 
     if (!course) {
-      return new Response("Course not found", { status: 404 });
+      return new NextResponse("Course Not Found", { status: 404 });
     }
 
-    const isPublishedSections = course.sections.some(
-      (section) => section.isPublished
-    );
+    const section = await db.section.findUnique({
+      where: {
+        id: sectionId,
+        courseId,
+      },
+    });
 
-    if (
-      !course.title ||
-      !course.description ||
-      !course.categoryId ||
-      !course.subCategoryId ||
-      !course.levelId ||
-      !course.imageUrl ||
-      !course.price ||
-      !isPublishedSections
-    ) {
+    const muxData = await db.muxData.findUnique({
+      where: {
+        sectionId,
+      },
+    });
+
+    if (!section || !muxData || !section.title || !section.description || !section.videoUrl) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const pusblishedCourse = await db.course.update({
-      where: { id: courseId, instructorId: userId },
-      data: { isPublished: true },
+    const publishedSection = await db.section.update({
+      where: {
+        id: sectionId,
+        courseId,
+      },
+      data: {
+        isPublished: true,
+      },
     });
 
-    return NextResponse.json(pusblishedCourse, { status: 200 });
+    return NextResponse.json(publishedSection, { status: 200 });
   } catch (err) {
-    console.log("[courseId_publish_POST]", err);
-    return new Response("Internal Server Error", { status: 500 });
+    console.log("[section_publish_POST]", err)
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
-};
+}

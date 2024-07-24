@@ -69,7 +69,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
   };
 
   return (
-    <div className="p-10">
+    <div className="p-10 ">
       <h1 className="text-xl font-bold">
         Let give some basics for your course
       </h1>
@@ -78,7 +78,7 @@ const CreateCourseForm = ({ categories }: CreateCourseFormProps) => {
         You can change them later.
       </p>
 
-      <Form {...form}>
+      <Form {...form} >
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 mt-10"

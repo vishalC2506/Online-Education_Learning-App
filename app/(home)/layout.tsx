@@ -1,4 +1,4 @@
-import Topbar from "@/components/layout/Topbar";
+import Topbar from "@/components/layout/Topbar"
 
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -6,7 +6,7 @@ const HomeLayout = ({ children }: { children: React.ReactNode }) => {
       <Topbar />
       {children}
     </>
-  );
-};
+  )
+}
 
-export default HomeLayout;
+export default HomeLayout
