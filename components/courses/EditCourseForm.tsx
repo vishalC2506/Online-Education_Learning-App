@@ -85,6 +85,7 @@ const EditCourseForm = ({
     try {
       await axios.patch(`/api/courses/${course.id}`, values);
       toast.success("Course Updated");
+      console.log(values)
       router.refresh();
     } catch (err) {
       console.log("Failed to update the course", err);
