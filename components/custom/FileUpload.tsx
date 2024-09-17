@@ -1,7 +1,7 @@
 "use client";
 
 import { ourFileRouter } from "@/app/api/uploadthing/core";
-import { UploadDropzone } from "../../lib/uploadthing";
+import { UploadDropzone } from "@/lib/uploadthing";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
